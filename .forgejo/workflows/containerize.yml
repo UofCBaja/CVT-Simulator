@@ -9,7 +9,7 @@ name: Contiaerize
 on:
   push:
     branches:
-      - develop
+      - master
 
 # each workflow must have at least one job.
 # jobs run in parallel by default (we can change that).
