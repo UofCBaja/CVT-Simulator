@@ -1,8 +1,8 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { RunResponse } from '@utils/api';
-import { buildGraphs } from '@utils/graph';
-import { ReplayController, ReplayEventType } from '@utils/ReplayController';
+import { buildCategorizedGraphs, type CategorizedGraphData } from '@utils/graph';
+import { ReplayController } from '@utils/ReplayController';
 import { timeAccessor } from '@types';
 
 // Type the location state
@@ -11,18 +11,14 @@ interface PlaybackLocationState {
 }
 
 interface UsePlaybackDataReturn {
-  graphs: ReturnType<typeof buildGraphs>;
+  categorizedGraphs: CategorizedGraphData[];
   replayController: ReplayController;
   times: number[];
-  activeIndex: number;
-  setActiveIndex: (index: number) => void;
 }
 
 export const usePlaybackData = (): UsePlaybackDataReturn | null => {
   const location = useLocation();
   const simulationResult = (location.state as PlaybackLocationState | null)?.simulationResult;
-
-  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const replayController = useMemo(() => {
     return simulationResult ? new ReplayController(simulationResult.data) : null;
@@ -32,19 +28,9 @@ export const usePlaybackData = (): UsePlaybackDataReturn | null => {
     return simulationResult ? simulationResult.data.map(timeAccessor) : [];
   }, [simulationResult]);
 
-  const graphs = useMemo(() => {
-    return simulationResult ? buildGraphs(simulationResult) : [];
+  const categorizedGraphs = useMemo(() => {
+    return simulationResult ? buildCategorizedGraphs(simulationResult) : [];
   }, [simulationResult]);
-
-  useEffect(() => {
-    if (!replayController) return;
-    const cleanup = replayController.on((event) => {
-      if (event.type === ReplayEventType.Progress) {
-        setActiveIndex(event.currentIndex);
-      }
-    });
-    return cleanup;
-  }, [replayController]);
 
   // Return null if simulation data is not available
   if (!simulationResult || !replayController) {
@@ -52,10 +38,8 @@ export const usePlaybackData = (): UsePlaybackDataReturn | null => {
   }
 
   return {
-    graphs,
+    categorizedGraphs,
     replayController,
     times,
-    activeIndex,
-    setActiveIndex: (index: number) => replayController.setCurrentIndex(index),
   };
 };

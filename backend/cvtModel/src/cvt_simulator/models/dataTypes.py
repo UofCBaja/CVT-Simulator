@@ -84,6 +84,7 @@ class PulleyState:
     wrap_angle: float  # Belt wrap angle around pulley [rad]
     radius: float  # Effective pitch radius [m]
     angular_velocity: float  # Pulley angular velocity [rad/s]
+    angular_position: float  # Pulley angular position [rad]
 
     # Force components (for analysis/debugging)
     radial_from_clamping: float  # Radial force contribution from clamping [N]
@@ -114,6 +115,8 @@ class ExternalLoadForceBreakdown:
 ## Car
 @dataclass
 class CarForceBreakdown:
+    coupling_torque_at_wheel: float
+    load_torque_at_wheel: float
     external_forces: ExternalLoadForceBreakdown
     acceleration: float
 
@@ -122,6 +125,7 @@ class CarForceBreakdown:
 @dataclass
 class EngineForceBreakdown:
     torque: float
+    coupling_torque_at_engine: float
     power: float
     angular_velocity: float
     angular_acceleration: float
@@ -130,8 +134,8 @@ class EngineForceBreakdown:
 # Slip shenanigans
 @dataclass
 class SlipBreakdown:
-    t_c: float
-    t_c_before_clamp: float
+    coupling_torque: float
+    torque_demand: float
     t_max_prim: float
     t_max_sec: float
     cvt_ratio_derivative: float

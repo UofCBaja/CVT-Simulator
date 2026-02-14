@@ -1,0 +1,62 @@
+@use '@styles/_fonts';
+
+.segmentList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .segment {
+        background: var(--secondary);
+
+        .segmentHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            min-height: 4rem;
+
+            .segmentNumber {
+                color: var(--text-color);
+                @include fonts.title-bold;
+            }
+        }
+
+        .segmentContent {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding-bottom: 2rem;
+
+                label {
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: var(--text-color);
+                    @include fonts.text-medium;
+                }
+            }
+
+            .segmentFields {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+
+                & > :nth-child(odd):last-child {
+                    grid-column: 1 / -1;
+                }
+            }
+        }
+    }
+}
+
+.addSegmentButton {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.875rem;
+    justify-content: center;
+    padding-bottom: 1rem;
+}

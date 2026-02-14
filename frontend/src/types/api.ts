@@ -21,6 +21,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/constants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Constants
+         * @description Get the physical constants and specifications used by the CVT simulator.
+         *     These values are useful for visualization and understanding the simulation parameters.
+         *     Calculated values like max_shift and center_to_center are automatically computed.
+         */
+        get: operations["get_constants_constants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/run": {
         parameters: {
             query?: never;
@@ -30,8 +52,72 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Run */
+        /**
+         * Run
+         * @description Run CVT simulation with optional custom parameters.
+         */
         post: operations["run_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/run/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Stream
+         * @description Run CVT simulation with streaming progress updates.
+         *     Returns newline-delimited JSON (NDJSON) stream with messages:
+         *     - StreamProgressMessage: {"type": "progress", "percent": 12.5}
+         *     - StreamCompleteMessage: {"type": "complete", "data": {...}}
+         *     - StreamErrorMessage: {"type": "error", "message": "..."}
+         */
+        post: operations["run_stream_run_stream_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solvers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Run Solvers */
+        post: operations["run_solvers_solvers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ramp/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Ramp
+         * @description Generate preview data for a custom ramp configuration.
+         */
+        post: operations["preview_ramp_ramp_preview_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -42,11 +128,161 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AllSolverResultsModel */
+        AllSolverResultsModel: {
+            primary_engagement: components["schemas"]["SolverResultModel"];
+            shift_initiation: components["schemas"]["SolverResultModel"];
+        };
         /** CarForceBreakdownModel */
         CarForceBreakdownModel: {
+            /** Coupling Torque At Wheel */
+            coupling_torque_at_wheel: number;
+            /** Load Torque At Wheel */
+            load_torque_at_wheel: number;
             external_forces: components["schemas"]["ExternalLoadForceBreakdownModel"];
             /** Acceleration */
             acceleration: number;
+        };
+        /**
+         * CarSpecs
+         * @description Configuration class for CVT simulator car specifications.
+         *
+         *     Base constants can be overridden to simulate different car configurations.
+         *     Calculated constants are computed automatically from base values.
+         */
+        CarSpecs: {
+            /**
+             * Engine Inertia
+             * @description Engine inertia in kg*m^2
+             * @default 0.1
+             */
+            engine_inertia: number;
+            /**
+             * Driveline Inertia
+             * @description Driveline inertia in kg*m^2 (includes sec CVT, gearbox, axles, wheels, hubs, etc)
+             * @default 0.5
+             */
+            driveline_inertia: number;
+            /**
+             * Gearbox Ratio
+             * @description Gearbox ratio (unitless)
+             * @default 7.556
+             */
+            gearbox_ratio: number;
+            /**
+             * Wheel Radius
+             * @description Wheel radius in meters
+             * @default 0.2794
+             */
+            wheel_radius: number;
+            /**
+             * Frontal Area
+             * @description Frontal area in m^2
+             * @default 1.11484
+             */
+            frontal_area: number;
+            /**
+             * Drag Coefficient
+             * @description Drag coefficient (unitless)
+             * @default 0.6
+             */
+            drag_coefficient: number;
+            /**
+             * Sheave Angle
+             * @description Sheave angle in radians
+             * @default 0.40142572795869574
+             */
+            sheave_angle: number;
+            /**
+             * Initial Flyweight Radius
+             * @description Initial flyweight radius in meters
+             * @default 0.05
+             */
+            initial_flyweight_radius: number;
+            /**
+             * Helix Radius
+             * @description Helix radius in meters
+             * @default 0.04445
+             */
+            helix_radius: number;
+            /**
+             * Belt Angle
+             * @description Belt angle in radians
+             * @default 0.24434609527920614
+             */
+            belt_angle: number;
+            /**
+             * Belt Height
+             * @description Belt height in meters
+             * @default 0.0155702
+             */
+            belt_height: number;
+            /**
+             * Belt Length
+             * @description Belt length in meters
+             * @default 0.9532619999999999
+             */
+            belt_length: number;
+            /**
+             * Belt Width Top
+             * @description Belt width at top in meters
+             * @default 0.021589999999999998
+             */
+            belt_width_top: number;
+            /**
+             * Min Prim Radius
+             * @description Minimum primary pulley radius in meters
+             * @default 0.019049999999999997
+             */
+            min_prim_radius: number;
+            /**
+             * Max Sec Radius
+             * @description Maximum secondary pulley radius in meters
+             * @default 0.1016
+             */
+            max_sec_radius: number;
+            /**
+             * Initial Sheave Displacement
+             * @description Initial sheave displacement in meters
+             * @default 0.0063754
+             */
+            initial_sheave_displacement: number;
+            /**
+             * Belt Width Bottom
+             * @description Belt width at bottom in meters, calculated from top width, height and angle.
+             */
+            readonly belt_width_bottom: number;
+            /**
+             * Belt Cross Sectional Area
+             * @description Belt cross-sectional area in m^2.
+             */
+            readonly belt_cross_sectional_area: number;
+            /**
+             * Max Shift
+             * @description Maximum shift distance in meters (calculated constant).
+             */
+            readonly max_shift: number;
+            /**
+             * Center To Center
+             * @description Center-to-center distance between pulleys in meters (calculated from belt and pulley geometry).
+             */
+            readonly center_to_center: number;
+        };
+        /** CircularSegmentConfigModel */
+        CircularSegmentConfigModel: {
+            /** Length */
+            length: number;
+            /** Angle Start */
+            angle_start: number;
+            /** Angle End */
+            angle_end: number;
+            /** Quadrant */
+            quadrant: number;
+            /**
+             * Type
+             * @constant
+             */
+            type: "circular";
         };
         /** CvtSystemForceBreakdownModel */
         CvtSystemForceBreakdownModel: {
@@ -65,6 +301,8 @@ export interface components {
         EngineForceBreakdownModel: {
             /** Torque */
             torque: number;
+            /** Coupling Torque At Engine */
+            coupling_torque_at_engine: number;
             /** Power */
             power: number;
             /** Angular Velocity */
@@ -105,6 +343,23 @@ export interface components {
             /** Net */
             net: number;
         };
+        /** LinearSegmentConfigModel */
+        LinearSegmentConfigModel: {
+            /** Length */
+            length: number;
+            /** Angle */
+            angle: number;
+            /**
+             * Type
+             * @constant
+             */
+            type: "linear";
+        };
+        /** PiecewiseRampConfigModel */
+        PiecewiseRampConfigModel: {
+            /** Segments */
+            segments: (components["schemas"]["LinearSegmentConfigModel"] | components["schemas"]["CircularSegmentConfigModel"])[];
+        };
         /** PrimaryForceBreakdownModel */
         PrimaryForceBreakdownModel: {
             flyweightForce: components["schemas"]["flyweightForceBreakdownModel"];
@@ -130,12 +385,27 @@ export interface components {
             radius: number;
             /** Angular Velocity */
             angular_velocity: number;
+            /** Angular Position */
+            angular_position: number;
             /** Radial From Clamping */
             radial_from_clamping: number;
             /** Radial From Centrifugal */
             radial_from_centrifugal: number;
             /** Breakdown */
             breakdown: components["schemas"]["PrimaryForceBreakdownModel"] | components["schemas"]["SecondaryForceBreakdownModel"];
+        };
+        /** RampPreviewResponse */
+        RampPreviewResponse: {
+            /** X */
+            x: number[];
+            /** Y */
+            y: number[];
+            /** Slopes */
+            slopes: number[];
+            /** X Min */
+            x_min: number;
+            /** X Max */
+            x_max: number;
         };
         /** SecondaryForceBreakdownModel */
         SecondaryForceBreakdownModel: {
@@ -150,12 +420,14 @@ export interface components {
             flyweight_mass?: number | null;
             /** Primary Ramp Geometry */
             primary_ramp_geometry?: number | null;
+            primary_ramp_config?: components["schemas"]["PiecewiseRampConfigModel"] | null;
             /** Primary Spring Rate */
             primary_spring_rate?: number | null;
             /** Primary Spring Pretension */
             primary_spring_pretension?: number | null;
             /** Secondary Helix Geometry */
             secondary_helix_geometry?: number | null;
+            secondary_ramp_config?: components["schemas"]["PiecewiseRampConfigModel"] | null;
             /** Secondary Torsion Spring Rate */
             secondary_torsion_spring_rate?: number | null;
             /** Secondary Compression Spring Rate */
@@ -177,10 +449,10 @@ export interface components {
         };
         /** SlipBreakdownModel */
         SlipBreakdownModel: {
-            /** T C */
-            t_c: number;
-            /** T C Before Clamp */
-            t_c_before_clamp: number;
+            /** Coupling Torque */
+            coupling_torque: number;
+            /** Torque Demand */
+            torque_demand: number;
             /** T Max Prim */
             t_max_prim: number;
             /** T Max Sec */
@@ -190,12 +462,54 @@ export interface components {
             /** Is Slipping */
             is_slipping: boolean;
         };
+        /** SolverResultModel */
+        SolverResultModel: {
+            /** Success */
+            success: boolean;
+            /** Value */
+            value: number | null;
+            /** Units */
+            units: string;
+            /** Description */
+            description: string;
+        };
         /** SpringTorsForceBreakdownModel */
         SpringTorsForceBreakdownModel: {
             /** Rotation */
             rotation: number;
             /** Net */
             net: number;
+        };
+        /** StreamCompleteMessage */
+        StreamCompleteMessage: {
+            /**
+             * Type
+             * @constant
+             */
+            type: "complete";
+            data: components["schemas"]["FormattedSimulationResultModel"];
+        };
+        /** StreamErrorMessage */
+        StreamErrorMessage: {
+            /**
+             * Type
+             * @constant
+             */
+            type: "error";
+            /** Message */
+            message: string;
+            /** Traceback */
+            traceback?: string | null;
+        };
+        /** StreamProgressMessage */
+        StreamProgressMessage: {
+            /**
+             * Type
+             * @constant
+             */
+            type: "progress";
+            /** Percent */
+            percent: number;
         };
         /** SystemBreakdownModel */
         SystemBreakdownModel: {
@@ -216,6 +530,8 @@ export interface components {
             shift_distance: number;
             /** Engine Angular Velocity */
             engine_angular_velocity: number;
+            /** Engine Angular Position */
+            engine_angular_position: number;
         };
         /** TimeStepDataModel */
         TimeStepDataModel: {
@@ -284,6 +600,26 @@ export interface operations {
             };
         };
     };
+    get_constants_constants_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CarSpecs"];
+                };
+            };
+        };
+    };
     run_run_post: {
         parameters: {
             query?: never;
@@ -304,6 +640,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FormattedSimulationResultModel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_stream_run_stream_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SimulationArgsInput"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StreamProgressMessage"] | components["schemas"]["StreamCompleteMessage"] | components["schemas"]["StreamErrorMessage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_solvers_solvers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SimulationArgsInput"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllSolverResultsModel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_ramp_ramp_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PiecewiseRampConfigModel"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RampPreviewResponse"];
                 };
             };
             /** @description Validation Error */

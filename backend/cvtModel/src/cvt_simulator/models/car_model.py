@@ -18,7 +18,9 @@ class CarModel:
         self.car_mass = car_mass
         self.load_model = load_model
 
-    def get_breakdown(self, state: SystemState, t_c: float) -> CarForceBreakdown:
+    def get_breakdown(
+        self, state: SystemState, coupling_torque: float
+    ) -> CarForceBreakdown:
         load_force = self.load_model.get_breakdown(state.car_velocity).net
         load_torque = load_force * WHEEL_RADIUS
 
@@ -27,11 +29,13 @@ class CarModel:
         )
         accel = (
             WHEEL_RADIUS
-            * (t_c * engine_to_wheel_ratio - load_torque)
+            * (coupling_torque * engine_to_wheel_ratio - load_torque)
             / (DRIVELINE_INERTIA + self.car_mass * WHEEL_RADIUS**2)
         )
 
         return CarForceBreakdown(
+            coupling_torque_at_wheel=coupling_torque * engine_to_wheel_ratio,
+            load_torque_at_wheel=load_torque,
             external_forces=self.load_model.get_breakdown(state.car_velocity),
             acceleration=accel,
         )
